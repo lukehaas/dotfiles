@@ -1,0 +1,90 @@
+# General
+format = """
+$directory\
+$git_branch\
+${custom.git_clean}\
+${custom.git_dirty}\
+$nodejs\
+$python\
+$rust\
+$docker_context\
+$line_break\
+$character"""
+
+# Prompt character
+[character]
+success_symbol = "[❯](green)"
+error_symbol = "[❯](red)"
+
+# Directory
+[directory]
+format = "[$path]($style)[$read_only]($read_only_style)"
+truncation_length = 0
+truncate_to_repo = false
+style = "bold purple"
+
+# Git
+[git_branch]
+format = "[$symbol$branch(:$remote_branch)]($style)"
+symbol = " "
+style = "bold blue"
+
+[git_status]
+disabled = true
+
+[custom.git_dirty]
+command = "echo ✖"
+when = 'git rev-parse --is-inside-work-tree 2>/dev/null && [ -n "$(git status --porcelain 2>/dev/null)" ]'
+style = "bold red"
+format = " [$output]($style)"
+
+[git_metrics]
+disabled = true
+
+[custom.git_clean]
+command = "echo ●"
+when = 'git rev-parse --is-inside-work-tree 2>/dev/null && [ -z "$(git status --porcelain 2>/dev/null)" ]'
+style = "bold green"
+format = " [$output]($style)"
+
+# Node.js
+[nodejs]
+symbol = " "
+format = "[$symbol($version )]($style)"
+
+# Python
+[python]
+symbol = " "
+format = "[$symbol($version )]($style)"
+
+# Docker
+[docker_context]
+symbol = " "
+format = "[$symbol$context]($style) "
+
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[java]
+disabled = true
+
+[ruby]
+disabled = true
+
+[php]
+disabled = true
+
+[golang]
+disabled = true
+
+[kotlin]
+disabled = true
+
+[swift]
+disabled = true
+
+[terraform]
+disabled = true
