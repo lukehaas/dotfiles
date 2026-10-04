@@ -1,4 +1,6 @@
 # General
+command_timeout = 2000
+
 format = """
 $directory\
 $git_branch\
@@ -34,7 +36,8 @@ disabled = true
 
 [custom.git_dirty]
 command = "echo ✖"
-when = 'git rev-parse --is-inside-work-tree 2>/dev/null && [ -n "$(git status --porcelain 2>/dev/null)" ]'
+require_repo = true
+when = '[ -n "$(git status --porcelain 2>/dev/null)" ]'
 style = "bold red"
 format = " [$output]($style)"
 
@@ -43,7 +46,8 @@ disabled = true
 
 [custom.git_clean]
 command = "echo ●"
-when = 'git rev-parse --is-inside-work-tree 2>/dev/null && [ -z "$(git status --porcelain 2>/dev/null)" ]'
+require_repo = true
+when = '[ -z "$(git status --porcelain 2>/dev/null)" ]'
 style = "bold green"
 format = " [$output]($style)"
 
@@ -60,7 +64,7 @@ format = "[$symbol($version )]($style)"
 # Docker
 [docker_context]
 symbol = " "
-format = "[$symbol$context]($style) "
+format = "[$symbol$context]($style)"
 
 [aws]
 disabled = true
