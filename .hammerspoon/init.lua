@@ -24,6 +24,13 @@ require("dnd").start()
 -- Smooth scrolling on F13 / F14 (fn+PageUp / fn+PageDown via firmware).
 require("scroll").start()
 
+-- Bring the terminal forward, launching it first if it isn't running. Bundle
+-- ID rather than name so a renamed .app or a lookalike can't be picked up.
+-- Deliberately not on HYPER: that layer is for window management.
+hs.hotkey.bind({"ctrl", "alt"}, "T", function()
+  hs.application.launchOrFocusByBundleID("com.github.wez.wezterm")
+end)
+
 local HYPER = {"cmd", "alt", "ctrl"}
 
 local bindings = {
