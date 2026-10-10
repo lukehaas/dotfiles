@@ -2,19 +2,6 @@
 -- nothing to connect to, so leave it loaded if you use `hs -c`.
 require("hs.ipc")
 
--- Reload when a config file is saved. Deliberately not a bare one-liner:
--- the watcher sees everything under ~/.hammerspoon (tests/, Spoons/,
--- .DS_Store), and a spurious reload drops module state -- dnd.lua would
--- forget it had turned Focus on and could leave Do Not Disturb stuck. Global
--- so the watcher isn't garbage collected once this file finishes running.
-configWatcher = hs.pathwatcher.new(hs.configdir, function(paths)
-  for _, path in ipairs(paths) do
-    if path:match("%.lua$") and not path:match("/tests/") then
-      return hs.reload()
-    end
-  end
-end):start()
-
 local window = require("window")
 
 -- Do Not Disturb while a camera is in use. Needs the "DND On" / "DND Off"
