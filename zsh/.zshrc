@@ -7,7 +7,6 @@ typeset -U path  # ensures unique entries only (removes duplicates)
 path=(
     $HOME/bin
     $HOME/.local/bin
-    $HOME/.digicert
     $path
 )
 export PATH
@@ -96,7 +95,8 @@ alias mkdir='mkdir -p'
 alias grep='grep --color=auto'
 alias df='df -h'
 alias du='du -h'
-alias reload='source ~/.zshrc'
+alias reload='source $ZDOTDIR/.zshrc'
+alias nvm='fnm'
 
 # Quick navigation
 alias ..='cd ..'
@@ -111,3 +111,8 @@ alias ltree="eza --tree --level=2  --icons --git"
 mkcd() {
     mkdir -p "$1" && cd "$1"
 }
+
+# Machine-specific config: machines/<LocalHostName>.zsh (see `scutil --get LocalHostName`)
+machine_config="$ZDOTDIR/machines/$(scutil --get LocalHostName 2>/dev/null || echo ${HOST%%.*}).zsh"
+[[ -f "$machine_config" ]] && source "$machine_config"
+unset machine_config
