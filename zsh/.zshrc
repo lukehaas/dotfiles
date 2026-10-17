@@ -18,13 +18,26 @@ ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 [ ! -d $ZINIT_HOME/.git ] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 source "${ZINIT_HOME}/zinit.zsh"
 
-
-# Load OMZ libs we need (not the whole thing)
-zinit snippet OMZL::git.zsh
-zinit snippet OMZP::git
+# Git
+alias gc="git commit -m"
+alias gca="git commit -a -m"
+alias gp="git push origin HEAD"
+alias gpu="git pull origin"
+alias gst="git status"
+alias glog="git log --graph --topo-order --pretty='%w(100,0,6)%C(yellow)%h%C(bold)%C(black)%d %C(cyan)%ar %C(green)%an%n%C(bold)%C(white)%s %N' --abbrev-commit"
+alias gdiff="git diff"
+alias gco="git checkout"
+alias gb='git branch'
+alias gba='git branch -a'
+alias gadd='git add'
+alias ga='git add -p'
+alias gcoall='git checkout -- .'
+alias gr='git remote'
+alias gre='git reset'
 
 # Zsh plugins
 zinit light zsh-users/zsh-syntax-highlighting
+zinit light zsh-users/zsh-history-substring-search
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
 zinit light Aloxaf/fzf-tab
@@ -42,8 +55,8 @@ command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"
 
 # Keybindings
 bindkey -e
-bindkey '^[[A' history-search-backward
-bindkey '^[[B' history-search-forward
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
 bindkey '^[[H' beginning-of-line # home key
 bindkey '^[[F' end-of-line # end key
 bindkey '^[[1;3C' forward-word # Option+Right
@@ -55,6 +68,8 @@ export VISUAL='nvim'
 export LESS='-R'
 
 # history setup
+HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND=""
+HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND=""
 HISTSIZE=10000
 SAVEHIST=$HISTSIZE
 HISTFILE="$ZDOTDIR/.zhistory"
@@ -87,6 +102,11 @@ alias reload='source ~/.zshrc'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
+
+# Eza
+alias l="eza -l --icons --git -a"
+alias lt="eza --tree --level=2 --long --icons --git"
+alias ltree="eza --tree --level=2  --icons --git"
 
 mkcd() {
     mkdir -p "$1" && cd "$1"

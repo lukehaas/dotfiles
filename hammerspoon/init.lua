@@ -18,6 +18,25 @@ hs.hotkey.bind({"ctrl", "alt"}, "T", function()
   hs.application.launchOrFocusByBundleID("com.github.wez.wezterm")
 end)
 
+local ctrlS = hs.eventtap.new({hs.eventtap.event.types.keyDown}, function(event)
+    local keyCode = event:getKeyCode()
+    local flags = event:getFlags()
+    local app = hs.application.frontmostApplication()
+
+    if keyCode == hs.keycodes.map["s"]
+        and flags.ctrl
+        and app
+        and app:name() == "WezTerm" then
+
+        hs.eventtap.keyStroke({"ctrl"}, "s", 0, app)
+        return true
+    end
+
+    return false
+end)
+
+ctrlS:start()
+
 local HYPER = {"cmd", "alt", "ctrl"}
 
 local bindings = {

@@ -50,7 +50,9 @@ config.keys = {
     key = 'Enter',
     mods = 'SHIFT',
     action = wezterm.action.SendString('\x1b[13;2u'),
-  }
+  },
+  { key = 'LeftArrow', mods = 'CMD|OPT', action = wezterm.action.SendKey { key = 'LeftArrow', mods = 'ALT|SHIFT' } },
+  { key = 'RightArrow', mods = 'CMD|OPT', action = wezterm.action.SendKey { key = 'RightArrow', mods = 'ALT|SHIFT' } }
 }
 
 config.send_composed_key_when_left_alt_is_pressed = true

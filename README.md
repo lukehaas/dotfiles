@@ -6,3 +6,7 @@ https://github.com/omerxx/dotfiles
 https://github.com/dreamsofautonomy/zensh
 https://github.com/dreamsofcode-io/tmux
 https://wicksipedia.com/blog/modern-zsh-setup
+
+```
+stow .
+```
