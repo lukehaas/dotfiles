@@ -1,3 +1,17 @@
+## Setup
+
+Move hammerspoon:
+
+```
+defaults write org.hammerspoon.Hammerspoon MJConfigFile "~/.config/hammerspoon/init.lua"
+```
+
+Run stow
+
+```
+stow .
+```
+
 ## Good dotfile resources and examples:
 
 https://github.com/kunchenguid/dotfiles-mac-nix
@@ -6,7 +20,3 @@ https://github.com/omerxx/dotfiles
 https://github.com/dreamsofautonomy/zensh
 https://github.com/dreamsofcode-io/tmux
 https://wicksipedia.com/blog/modern-zsh-setup
-
-```
-stow .
-```
