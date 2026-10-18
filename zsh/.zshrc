@@ -113,4 +113,4 @@ mkcd() {
 }
 
 # Machine-specific config, untracked. Sourced last so it can override anything above.
-[[ -f "$ZDOTDIR/local.zsh" ]] && source "$ZDOTDIR/local.zsh"
+[[ -f "$ZDOTDIR/.zshrc_local" ]] && source "$ZDOTDIR/.zshrc_local"
