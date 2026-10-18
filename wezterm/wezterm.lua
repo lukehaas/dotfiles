@@ -58,16 +58,6 @@ config.keys = {
 config.send_composed_key_when_left_alt_is_pressed = true
 config.send_composed_key_when_right_alt_is_pressed = true
 
--- enable clickable link
-config.mouse_bindings = {
-  -- Cmd+Click to open links (macOS)
-  {
-    event = { Up = { streak = 1, button = 'Left' } },
-    mods = 'CMD',
-    action = wezterm.action.OpenLinkAtMouseCursor,
-  },
-}
-
 
 -- config.inactive_pane_hsb = {
 --   saturation = 0.0,

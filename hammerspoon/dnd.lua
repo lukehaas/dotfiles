@@ -57,12 +57,32 @@ local enabledByUs = false
 local pending
 local watched = {}
 
-local function runShortcut(name)
-  local output, ok, _, rc = hs.execute(string.format("/usr/bin/shortcuts run '%s'", name))
-  if not ok then
-    log.ef("shortcut '%s' failed (rc %s): %s", name, tostring(rc), (output or ""):gsub("%s+$", ""))
+-- Cleared by stop(), so a shortcut finishing afterwards changes nothing.
+local active = false
+
+-- The shortcut in flight, if any. Held here so it isn't garbage collected
+-- mid-run, and so apply() can tell one is still going.
+local running
+
+-- Shortcuts take around a second to run, so they run as a task rather than
+-- through hs.execute, which would freeze every hotkey and timer meanwhile.
+local function runShortcut(name, onSuccess)
+  running = hs.task.new("/usr/bin/shortcuts", function(rc, stdout, stderr)
+    running = nil
+    if not active then return end
+
+    if rc == 0 then
+      onSuccess()
+    else
+      local output = (stderr ~= "" and stderr or stdout or ""):gsub("%s+$", "")
+      log.ef("shortcut '%s' failed (rc %s): %s", name, tostring(rc), output)
+    end
+  end, {"run", name})
+
+  if not running:start() then
+    running = nil
+    log.ef("shortcut '%s' could not be started", name)
   end
-  return ok
 end
 
 local function anyCameraInUse()
@@ -76,18 +96,25 @@ local function anyCameraInUse()
 end
 
 local function apply()
+  -- One shortcut at a time. Anything that changed while one was running is
+  -- picked up by the apply() it makes when it succeeds. A failure does not
+  -- retry, so a broken shortcut can't loop; the next camera event tries again.
+  if running then return end
+
   local inUse, name = anyCameraInUse()
 
   if inUse and not enabledByUs then
-    if runShortcut(SHORTCUT_ON) then
+    runShortcut(SHORTCUT_ON, function()
       enabledByUs = true
       log.f("camera in use (%s) - Do Not Disturb on", name)
-    end
+      apply()
+    end)
   elseif not inUse and enabledByUs then
-    if runShortcut(SHORTCUT_OFF) then
+    runShortcut(SHORTCUT_OFF, function()
       enabledByUs = false
       log.i("cameras free - Do Not Disturb off")
-    end
+      apply()
+    end)
   end
 end
 
@@ -137,6 +164,7 @@ function M.start()
     return nil
   end
 
+  active = true
   watchCameras()
 
   -- Cameras come and go (an iPhone waking, a webcam unplugged), so the
@@ -156,6 +184,8 @@ end
 --- Stop watching. Releases Focus if this module had turned it on, so stopping
 --- never leaves you stuck in Do Not Disturb.
 function M.stop()
+  active = false
+
   if pending then
     pending:stop()
     pending = nil
@@ -168,8 +198,20 @@ function M.stop()
 
   if hs.camera.isWatcherRunning() then hs.camera.stopWatcher() end
 
-  if enabledByUs then
-    runShortcut(SHORTCUT_OFF)
+  -- A shortcut still in flight may be turning Focus on, and its result will
+  -- be ignored now, so release Focus for it too. This waits on purpose: a
+  -- caller stopping the module (or reloading) expects Focus off on return.
+  local inFlight = running ~= nil
+  if running then
+    running:waitUntilExit()
+    running = nil
+  end
+
+  if enabledByUs or inFlight then
+    local output, ok = hs.execute(string.format("/usr/bin/shortcuts run '%s'", SHORTCUT_OFF))
+    if not ok then
+      log.ef("shortcut '%s' failed: %s", SHORTCUT_OFF, (output or ""):gsub("%s+$", ""))
+    end
     enabledByUs = false
   end
 end

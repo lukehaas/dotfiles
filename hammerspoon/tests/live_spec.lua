@@ -1,5 +1,5 @@
 -- Live geometry suite: runs every handler against each attached screen, then
--- the cross-screen moves. Run with: hs ~/.hammerspoon/tests/live_spec.lua
+-- the cross-screen moves. Run with: hs ~/.config/hammerspoon/tests/live_spec.lua
 local window = require("window")
 
 local app = hs.application.get("WezTerm")

@@ -18,7 +18,9 @@ hs.hotkey.bind({"ctrl", "alt"}, "T", function()
   hs.application.launchOrFocusByBundleID("com.github.wez.wezterm")
 end)
 
-local ctrlS = hs.eventtap.new({hs.eventtap.event.types.keyDown}, function(event)
+-- Global, not local: an eventtap that nothing references gets garbage
+-- collected, which silently stops it.
+ctrlS = hs.eventtap.new({hs.eventtap.event.types.keyDown}, function(event)
     local keyCode = event:getKeyCode()
     local flags = event:getFlags()
     local app = hs.application.frontmostApplication()
@@ -26,7 +28,7 @@ local ctrlS = hs.eventtap.new({hs.eventtap.event.types.keyDown}, function(event)
     if keyCode == hs.keycodes.map["s"]
         and flags.ctrl
         and app
-        and app:name() == "WezTerm" then
+        and app:bundleID() == "com.github.wez.wezterm" then
 
         hs.eventtap.keyStroke({"ctrl"}, "s", 0, app)
         return true

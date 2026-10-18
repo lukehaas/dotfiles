@@ -5,8 +5,7 @@ palette = "catppuccin_mocha"
 format = """
 $directory\
 $git_branch\
-${custom.git_clean}\
-${custom.git_dirty}\
+${custom.git_state}\
 $nodejs\
 $python\
 $rust\
@@ -24,7 +23,7 @@ error_symbol = "[❯](red)"
 format = "[$path]($style)[$read_only]($read_only_style)"
 truncation_length = 0
 truncate_to_repo = false
-style = "bold purple"
+style = "bold mauve"
 
 # Git
 [git_branch]
@@ -35,22 +34,18 @@ style = "bold blue"
 [git_status]
 disabled = true
 
-[custom.git_dirty]
-command = "echo ✖"
+# One git status per prompt: ✖ when dirty, ● when clean. The colour comes
+# from the command, since a module's style can't depend on its output. The
+# RGB values are the palette's red and green.
+[custom.git_state]
+command = 'if [ -n "$(git status --porcelain 2>/dev/null)" ]; then printf "\033[1;38;2;243;139;168m✖\033[0m"; else printf "\033[1;38;2;166;227;161m●\033[0m"; fi'
+when = true
 require_repo = true
-when = '[ -n "$(git status --porcelain 2>/dev/null)" ]'
-style = "bold red"
-format = " [$output]($style)"
+shell = ["sh"]
+format = " $output"
 
 [git_metrics]
 disabled = true
-
-[custom.git_clean]
-command = "echo ●"
-require_repo = true
-when = '[ -z "$(git status --porcelain 2>/dev/null)" ]'
-style = "bold green"
-format = " [$output]($style)"
 
 # Node.js
 [nodejs]

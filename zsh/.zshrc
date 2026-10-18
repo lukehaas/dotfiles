@@ -112,7 +112,5 @@ mkcd() {
     mkdir -p "$1" && cd "$1"
 }
 
-# Machine-specific config: machines/<LocalHostName>.zsh (see `scutil --get LocalHostName`)
-machine_config="$ZDOTDIR/machines/$(scutil --get LocalHostName 2>/dev/null || echo ${HOST%%.*}).zsh"
-[[ -f "$machine_config" ]] && source "$machine_config"
-unset machine_config
+# Machine-specific config, untracked. Sourced last so it can override anything above.
+[[ -f "$ZDOTDIR/local.zsh" ]] && source "$ZDOTDIR/local.zsh"

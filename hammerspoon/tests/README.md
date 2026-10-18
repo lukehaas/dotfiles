@@ -14,7 +14,7 @@ most of the original bugs lived.
 ## Simulated suite
 
 ```bash
-lua5.4 ~/.hammerspoon/tests/window_spec.lua
+lua5.4 ~/.config/hammerspoon/tests/window_spec.lua
 ```
 
 Stubs the `hs` API and two fake displays (a primary at `0,25` and a secondary
@@ -28,7 +28,7 @@ number you have to trust. Tolerance is 0.01.
 ## Live suite
 
 ```bash
-hs ~/.hammerspoon/tests/live_spec.lua
+hs ~/.config/hammerspoon/tests/live_spec.lua
 ```
 
 Runs the full set against **each attached screen**, then the cross-screen
@@ -66,7 +66,7 @@ hs -c 'return #hs.hotkey.getHotkeys()'   # expect 9
 ## Syntax check without running anything
 
 ```bash
-luac5.4 -p ~/.hammerspoon/window.lua ~/.hammerspoon/init.lua
+luac5.4 -p ~/.config/hammerspoon/window.lua ~/.config/hammerspoon/init.lua
 ```
 
 Silent means both parse. Worth doing before a reload — a syntax error in
