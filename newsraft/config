@@ -1,0 +1,4 @@
+
+bind m exec-quiet 'u="%l"; tmux display-popup -E -w 85%% -h 85%% -S fg=magenta "curl -s \"curl.md/${u#*://}\" | glow -t"'
+
+set notification-command ""
