@@ -19,9 +19,8 @@ source "${ZINIT_HOME}/zinit.zsh"
 
 # Git
 alias gc="git commit -m"
-alias gca="git commit -a -m"
-alias gp="git push origin HEAD"
-alias gpu="git pull origin"
+alias gp="git push"
+alias gpr="git pull -r"
 alias gst="git status"
 alias glog="git log --graph --topo-order --pretty='%w(100,0,6)%C(yellow)%h%C(bold)%C(black)%d %C(cyan)%ar %C(green)%an%n%C(bold)%C(white)%s %N' --abbrev-commit"
 alias gdiff="git diff"
@@ -29,10 +28,23 @@ alias gco="git checkout"
 alias gb='git branch'
 alias gba='git branch -a'
 alias gadd='git add'
-alias ga='git add -p'
-alias gcoall='git checkout -- .'
-alias gr='git remote'
-alias gre='git reset'
+alias gf='git fetch'
+alias grb='git rebase'
+alias grba='git rebase --abort'
+alias grbc='git rebase --continue'
+
+# checkout default branch
+gcm() {
+  local b=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null)
+  git checkout "${b#origin/}"
+}
+
+# squash commits on the current branch into a single commit
+# Usage: gsquash, optionally followed by a commit message: gsquash -m "message"
+gsquash() {
+  local b=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null)
+  git reset --soft "$(git merge-base "$b" HEAD)" && git commit "$@"
+}
 
 # Zsh plugins
 zinit light zsh-users/zsh-syntax-highlighting
@@ -112,5 +124,12 @@ mkcd() {
     mkdir -p "$1" && cd "$1"
 }
 
+# Open command in a tmux popup
+u() {
+    local cmd="$*"
+    (( $+aliases[$1] )) && cmd="${aliases[$1]} ${*:2}"
+    tmux display-popup -E -w 90% -h 90% -d "#{pane_current_path}" -S "fg=magenta" "${cmd:-$SHELL}"
+}
+
 # Machine-specific config, untracked. Sourced last so it can override anything above.
-[[ -f "$ZDOTDIR/.zshrc_local" ]] && source "$ZDOTDIR/.zshrc_local"
+[[ -f "$ZDOTDIR/.zshrc.local" ]] && source "$ZDOTDIR/.zshrc.local"
