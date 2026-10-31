@@ -1,4 +1,59 @@
-
+# Read url in markdown via curl.md
 bind m exec-quiet 'u="%l"; tmux display-popup -E -w 85%% -h 85%% -S fg=magenta "curl -s \"curl.md/${u#*://}\" | glow -t"'
 
+bind O open-in-browser
+
+# Read url in w3m
+bind o exec-quiet tmux display-popup -E -w 85%% -h 85%% -S "fg=magenta" "w3m '%l'"
+
 set notification-command ""
+
+# Default keybindings
+#
+# Movement
+#   j / Down / Ctrl+e        Select next
+#   k / Up / Ctrl+y          Select previous
+#   Space / Ctrl+f / PgDn    Next page
+#   Ctrl+d                   Half page down
+#   Ctrl+b / PgUp            Previous page
+#   Ctrl+u                   Half page up
+#   g / Home                 First item
+#   G / End                  Last item
+#
+# Jumping
+#   J / K                    Next / previous item
+#   n / N                    Next / previous unread
+#   p / P                    Next / previous important
+#   e / E                    Next / previous error
+#   *                        Go to feed
+#
+# View
+#   , / .                    Shift view left / right
+#   <                        Reset shift
+#   H                        Toggle read menu
+#   Tab                      Toggle explore mode
+#   v                        View errors
+#   `                        Clear status bar
+#
+# Sorting
+#   t                        Sort by time
+#   w                        Sort by row id (order added)
+#   u                        Sort by unread
+#   z                        Sort by initial order
+#   a                        Sort alphabetically
+#   i                        Sort by important
+#
+# Actions
+#   l / Enter / Right        Open / enter
+#   h / Backspace / Left     Go back
+#   r                        Reload
+#   R / Ctrl+r               Reload all
+#   A                        Mark all as read
+#   d                        Mark read and go to next
+#   D                        Mark unread and go to next
+#   f / F                    Mark important / unimportant
+#   o                        Open in browser
+#   y / c                    Copy link to clipboard
+#   /                        Search
+#   q                        Quit (go back one level)
+#   Q                        Quit immediately
