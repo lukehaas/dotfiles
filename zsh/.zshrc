@@ -73,6 +73,16 @@ bindkey '^[[F' end-of-line # end key
 bindkey '^[[1;3C' forward-word # Option+Right
 bindkey '^[[1;3D' backward-word # Option+Left
 
+# Shift+Tab expands an alias in command position
+_expand_alias_at_cursor() {
+  local words=(${(z)LBUFFER})
+  if [[ -z $RBUFFER && ${#words} -eq 1 && $LBUFFER != *' ' && -n ${aliases[${words[1]}]} ]]; then
+    LBUFFER="${aliases[${words[1]}]}"
+  fi
+}
+zle -N _expand_alias_at_cursor
+bindkey '^[[Z' _expand_alias_at_cursor
+
 export HOMEBREW_AUTO_UPDATE_SECS="86400"
 export EDITOR='nvim'
 export VISUAL='nvim'
@@ -107,7 +117,7 @@ alias mkdir='mkdir -p'
 alias grep='grep --color=auto'
 alias df='df -h'
 alias du='du -h'
-alias reload='source $ZDOTDIR/.zshrc'
+alias reload='source $ZDOTDIR/.zshrc; [[ -n $TMUX ]] && tmux source-file ~/.config/tmux/tmux.conf'
 alias nvm='fnm'
 
 # Quick navigation

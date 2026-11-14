@@ -5,3 +5,5 @@ zsh/.zshenv.local
 w3m/*
 !w3m/config
 !w3m/keymap
+.DS_Store
+tmux/plugins/*

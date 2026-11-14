@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # macOS preferences
-# Run manually: ./macos/defaults.sh
+# Give terminal full disk access for some settings to work
+# Run manually: bash -x ./macos/defaults.sh
 
 # Inspired by https://github.com/geerlingguy/dotfiles/blob/master/.osx
 

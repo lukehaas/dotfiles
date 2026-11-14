@@ -4,3 +4,4 @@
 --ignore=atuin/*
 --ignore=macos
 --ignore=via
+--ignore=homebrew

@@ -1,0 +1,80 @@
+#
+# Generate list: brew bundle dump --file=/dev/stdout --no-vscode
+# Run and install: brew bundle --file=homebrew/Brewfile
+#
+# Clone of cat(1) with syntax highlighting and Git integration
+brew "bat"
+# Resource monitor. C++ version and continuation of bashtop and bpytop
+brew "btop"
+# Versatile and fast Unicode/ASCII/ANSI graphics renderer
+brew "chafa"
+# Container runtimes on MacOS (and Linux) with minimal setup
+brew "colima", restart_service: :changed
+# Pack, ship and run any application as a lightweight container
+brew "docker"
+# Modern, maintained replacement for ls
+brew "eza"
+# Simple, fast and user-friendly alternative to find
+brew "fd"
+# Fast and simple Node.js version manager
+brew "fnm"
+# Command-line fuzzy finder written in Go
+brew "fzf"
+# GitHub command-line tool
+brew "gh"
+# Distributed revision control system
+brew "git"
+# Syntax-highlighting pager for git and diff output
+brew "git-delta"
+# Tcl/Tk UI for the git revision control system
+brew "git-gui"
+# Render markdown on the CLI
+brew "glow"
+# Review-first terminal diff viewer for agent-authored changesets
+brew "hunk"
+# Lightweight and flexible command-line JSON processor
+brew "jq"
+# Ambitious Vim-fork focused on extensibility and agility
+brew "neovim"
+# Terminal feed reader
+brew "newsraft"
+# Terminal slideshow tool
+brew "presenterm"
+# Search tool like grep and The Silver Searcher
+brew "ripgrep"
+# Static analysis and lint tool, for (ba)sh scripts
+brew "shellcheck"
+# Cross-shell prompt for astronauts
+brew "starship"
+# Organize software neatly under a single directory tree (e.g. /usr/local)
+brew "stow"
+# Text interface for Git repositories
+brew "tig"
+# Terminal image and video viewer
+brew "timg"
+# Official tldr client written in Rust
+brew "tlrc"
+# Terminal multiplexer
+brew "tmux"
+# Display directories as trees (with optional color/HTML output)
+brew "tree"
+# Pager/text based browser
+brew "w3m"
+# Internet file retriever
+brew "wget"
+# Process YAML, JSON, XML, CSV and properties documents from the CLI
+brew "yq"
+# Shell extension to navigate your filesystem faster
+brew "zoxide"
+# Fonts
+cask "font-jetbrains-mono-nerd-font"
+# Desktop automation application
+cask "hammerspoon"
+# Keyboard shortcuts for every button on your screen
+cask "homerow"
+# Utility for comparing and merging files and directories
+cask "kdiff3"
+# Quicklook extension for source files
+cask "syntax-highlight"
+# GPU-accelerated cross-platform terminal emulator and multiplexer
+cask "wezterm"
