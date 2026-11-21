@@ -4,8 +4,8 @@ Two suites covering `../window.lua`.
 
 | File | Needs Hammerspoon? | Checks | What it proves |
 |------|-------------------|--------|----------------|
-| `window_spec.lua` | No | 28 | The geometry maths, deterministically |
-| `live_spec.lua` | Yes | 20 per screen + cross-screen | It works on the real displays |
+| `window_spec.lua` | No | 58 | The geometry maths, deterministically |
+| `live_spec.lua` | Yes | 22 per screen + cross-screen | It works on the real displays |
 
 Run the simulated suite first. It's deterministic, needs nothing running, and
 covers a fabricated two-screen layout with offset origins — which is where
@@ -60,7 +60,7 @@ hs -c "hs.reload()" >/dev/null 2>&1 &
 Then confirm it came back up:
 
 ```bash
-hs -c 'return #hs.hotkey.getHotkeys()'   # expect 9
+hs -c 'return #hs.hotkey.getHotkeys()'   # expect 19
 ```
 
 ## Syntax check without running anything

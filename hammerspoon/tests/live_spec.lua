@@ -65,8 +65,22 @@ local function runScreenSuite(screen)
   check("rightCycle -> half", inside, {sf.x + half, sf.y, half, sf.h}, window.rightCycle)
   check("rightCycle -> third", {sf.x + half, sf.y, half, sf.h},
     {sf.x + sf.w - third, sf.y, third, sf.h}, window.rightCycle)
+  check("leftCycle -> two-thirds", {sf.x, sf.y, third, sf.h},
+    {sf.x, sf.y, third * 2, sf.h}, window.leftCycle)
+  check("leftCycle -> half again", {sf.x, sf.y, third * 2, sf.h},
+    {sf.x, sf.y, half, sf.h}, window.leftCycle)
+  check("rightCycle -> two-thirds", {sf.x + sf.w - third, sf.y, third, sf.h},
+    {sf.x + third, sf.y, third * 2, sf.h}, window.rightCycle)
+
+  -- The start frame is set directly, not by a handler, so it isn't in the
+  -- undo history; undo must return to it and go no further.
+  check("undo after leftCycle", inside, inside,
+    function() window.leftCycle(); window.undo() end)
+  check("maximize twice stays", inside, {sf.x, sf.y, sf.w, sf.h},
+    function() window.maximize(); window.maximize() end)
   check("moveLeft", inside, {sf.x, sf.y + 100, 600, 400}, window.moveLeft)
   check("moveRight", inside, {sf.x + sf.w - 600, sf.y + 100, 600, 400}, window.moveRight)
+  check("center", inside, {sf.x + (sf.w - 600) / 2, sf.y + (sf.h - 400) / 2, 600, 400}, window.center)
 
   check("grow all edges free", inside,
     {sf.x + 200 - stepW, sf.y + 100 - stepH, 600 + stepW * 2, 400 + stepH * 2}, window.grow)

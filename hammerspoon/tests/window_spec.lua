@@ -24,8 +24,11 @@ hs = {
   window = {focusedWindow = function() return current end},
 }
 
+local nextId = 0
 local function win(frame, screen)
-  local w = {f = frame}
+  nextId = nextId + 1
+  local w = {f = frame, id_ = nextId}
+  function w:id() return self.id_ end
   function w:frame() return {x = self.f.x, y = self.f.y, w = self.f.w, h = self.f.h} end
   function w:setFrame(nf) self.f = nf end
   function w:screen() return screen end
@@ -77,6 +80,28 @@ check("rightCycle right half -> right third",
   run(window.rightCycle, {x = 1800 + 1280, y = 0, w = 1280, h = 1440}, screens[2]),
   {x = 1800 + 2560 - 2560 / 3, y = 0, w = 2560 / 3, h = 1440})
 
+-- Third -> two-thirds -> back to half, on both sides.
+check("leftCycle left third -> left two-thirds",
+  run(window.leftCycle, {x = 1800, y = 0, w = 2560 / 3, h = 1440}, screens[2]),
+  {x = 1800, y = 0, w = 2560 * 2 / 3, h = 1440})
+
+check("leftCycle left two-thirds -> left half",
+  run(window.leftCycle, {x = 1800, y = 0, w = 2560 * 2 / 3, h = 1440}, screens[2]),
+  {x = 1800, y = 0, w = 1280, h = 1440})
+
+check("rightCycle right third -> right two-thirds",
+  run(window.rightCycle, {x = 1800 + 2560 - 2560 / 3, y = 0, w = 2560 / 3, h = 1440}, screens[2]),
+  {x = 1800 + 2560 / 3, y = 0, w = 2560 * 2 / 3, h = 1440})
+
+check("rightCycle right two-thirds -> right half",
+  run(window.rightCycle, {x = 1800 + 2560 / 3, y = 0, w = 2560 * 2 / 3, h = 1440}, screens[2]),
+  {x = 1800 + 1280, y = 0, w = 1280, h = 1440})
+
+-- Third-width but not against the left edge: not part of the cycle yet.
+check("leftCycle third-width off the edge -> half",
+  run(window.leftCycle, {x = 2200, y = 0, w = 2560 / 3, h = 1440}, screens[2]),
+  {x = 1800, y = 0, w = 1280, h = 1440})
+
 check("maximize fills the screen",
   run(window.maximize, {x = 2000, y = 300, w = 800, h = 600}, screens[2]),
   {x = 1800, y = 0, w = 2560, h = 1440})
@@ -90,6 +115,21 @@ check("moveLeft stays on this screen",
 check("moveRight hits the right edge",
   run(window.moveRight, {x = 2000, y = 300, w = 800, h = 600}, screens[2]),
   {x = 1800 + 2560 - 800, y = 300, w = 800, h = 600})
+
+-- Centred within the secondary's frame, not at x = (2560 - 800) / 2.
+check("center keeps size, centres on this screen",
+  run(window.center, {x = 2000, y = 300, w = 800, h = 600}, screens[2]),
+  {x = 1800 + (2560 - 800) / 2, y = (1440 - 600) / 2, w = 800, h = 600})
+
+-- The primary's y origin is 25 (menu bar), so the vertical centre is offset.
+check("center respects a non-zero y origin",
+  run(window.center, {x = 100, y = 100, w = 600, h = 400}, screens[1]),
+  {x = (1800 - 600) / 2, y = 25 + (1100 - 400) / 2, w = 600, h = 400})
+
+-- Too wide for the screen: width clamps to fit, height is kept.
+check("center shrinks only the oversized axis",
+  run(window.center, {x = 0, y = 100, w = 2000, h = 400}, screens[1]),
+  {x = 0, y = 25 + (1100 - 400) / 2, w = 1800, h = 400})
 
 print("\n-- resize: each free edge moves one step, touching edges stay put --")
 -- SECONDARY is 2560x1440, so stepW = 128 and stepH = 72.
@@ -196,6 +236,154 @@ check("right-flush stays inside",
   run(window.nextScreen, {x = 1800 + 2560 - 600, y = 100, w = 600, h = 400}, screens[2]),
   {x = 1200, y = 25 + (300 / 1440) * 1100 - 200, w = 600, h = 400})
 
+print("\n-- full screen: app's own mode first, macOS full screen otherwise --")
+
+-- Records what toggleFullScreen did instead of touching geometry.
+local function fsWin(opts)
+  local w = {calls = {}}
+  local app = {}
+  function app:bundleID() return opts.bundleID end
+  function app:selectMenuItem(path)
+    w.calls[#w.calls + 1] = "menu:" .. table.concat(path, " > ")
+    return opts.menuWorks ~= false
+  end
+  function w:isFullScreen() return opts.native or false end
+  function w:setFullScreen(on) w.calls[#w.calls + 1] = "native:" .. tostring(on) end
+  function w:application() return opts.bundleID and app or nil end
+  return w
+end
+
+local function checkCalls(label, opts, want)
+  current = fsWin(opts)
+  window.toggleFullScreen()
+  local got = table.concat(current.calls, ", ")
+  if got == want then
+    print(string.format("  ok   %-42s %s", label, got))
+  else
+    failures = failures + 1
+    print(string.format("  FAIL %-42s got [%s] | want [%s]", label, got, want))
+  end
+end
+
+checkCalls("WezTerm uses its own menu item",
+  {bundleID = "com.github.wez.wezterm"},
+  "menu:View > Toggle full screen mode")
+
+checkCalls("other apps use macOS full screen",
+  {bundleID = "com.apple.Safari"},
+  "native:true")
+
+-- A renamed or missing menu item must not leave the key inert.
+checkCalls("menu item fails -> macOS full screen",
+  {bundleID = "com.github.wez.wezterm", menuWorks = false},
+  "menu:View > Toggle full screen mode, native:true")
+
+-- Already in macOS full screen (even WezTerm): leave it, don't stack modes.
+checkCalls("macOS full screen always exits",
+  {bundleID = "com.github.wez.wezterm", native = true},
+  "native:false")
+
+checkCalls("no application -> macOS full screen",
+  {},
+  "native:true")
+
+print("\n-- undo: steps back through what the handlers changed --")
+
+-- Runs handlers in order on one window, returning its final frame.
+local function sequence(frame, screen, ...)
+  current = win(frame, screen)
+  for _, handler in ipairs({...}) do handler() end
+  return current.f
+end
+
+local START = {x = 2000, y = 300, w = 800, h = 600}
+
+check("undo restores the frame before the last action",
+  sequence(START, screens[2], window.leftCycle, window.undo), START)
+
+check("undo steps back one action at a time",
+  sequence(START, screens[2], window.leftCycle, window.leftCycle, window.undo),
+  {x = 1800, y = 0, w = 1280, h = 1440})
+
+check("repeated undo walks back to the start",
+  sequence(START, screens[2], window.leftCycle, window.grow, window.center,
+    window.undo, window.undo, window.undo), START)
+
+check("undo with nothing remembered is a no-op",
+  sequence(START, screens[2], window.undo), START)
+
+-- Growing a maximized window changes nothing, so it records nothing: one
+-- undo still gets back to before the maximize.
+check("no-op actions are not remembered",
+  sequence(START, screens[2], window.maximize, window.grow, window.undo), START)
+
+check("undo carries a window back across screens",
+  sequence({x = 450, y = 300, w = 900, h = 550}, screens[1], window.nextScreen, window.undo),
+  {x = 450, y = 300, w = 900, h = 550})
+
+-- Maximize is not a toggle: a second press is a no-op and records nothing,
+-- so one undo gets back to before the first press.
+check("maximize twice stays maximized",
+  sequence(START, screens[2], window.maximize, window.maximize),
+  {x = 1800, y = 0, w = 2560, h = 1440})
+
+check("second maximize adds no undo step",
+  sequence(START, screens[2], window.maximize, window.maximize, window.undo), START)
+
+-- Each window has its own history.
+current = win(START, screens[2])
+local first = current
+window.leftCycle()
+current = win({x = 2100, y = 400, w = 500, h = 500}, screens[2])
+window.undo()
+check("undo only touches the focused window's history", current.f,
+  {x = 2100, y = 400, w = 500, h = 500})
+current = first
+window.undo()
+check("the other window's history is intact", current.f, START)
+
+print("\n-- directional focus --")
+
+-- Records how focusWindow<Direction> was called rather than computing focus,
+-- which is Hammerspoon's job.
+local focusCalls
+local function focusable(standard)
+  local w = win({x = 0, y = 0, w = 100, h = 100}, screens[1])
+  function w:isStandard() return standard end
+  for _, dir in ipairs({"West", "South", "North", "East"}) do
+    w["focusWindow" .. dir] = function(self, candidates, frontmost, strict)
+      focusCalls[#focusCalls + 1] = {dir = dir, candidates = candidates,
+        frontmost = frontmost, strict = strict}
+    end
+  end
+  return w
+end
+
+local helper = focusable(false)
+local other = focusable(true)
+current = focusable(true)
+hs.window.orderedWindows = function() return {current, helper, other} end
+
+for _, case in ipairs({
+  {window.focusLeft, "West"}, {window.focusDown, "South"},
+  {window.focusUp, "North"}, {window.focusRight, "East"},
+}) do
+  focusCalls = {}
+  case[1]()
+  local call = focusCalls[1]
+  local ok = #focusCalls == 1 and call.dir == case[2]
+    and call.frontmost == true and call.strict == true
+    and #call.candidates == 2 and call.candidates[1] == current
+    and call.candidates[2] == other
+  if ok then
+    print(string.format("  ok   %-42s %s, standard windows only, front to back",
+      "focus " .. case[2]:lower(), case[2]))
+  else
+    failures = failures + 1
+    print("  FAIL focus " .. case[2]:lower() .. " called focusWindow wrongly")
+  end
+end
+
 print("\n-- degenerate input --")
 
 local singleScreen = {}
@@ -209,12 +397,15 @@ check("nextScreen with one display is a no-op",
 
 -- Old code called win:frame() unconditionally and threw here.
 current = nil
-local ok, err = pcall(window.maximize)
-if ok then
-  print("  ok   no focused window is handled")
-else
-  failures = failures + 1
-  print("  FAIL no focused window threw: " .. tostring(err))
+for name, handler in pairs({maximize = window.maximize, undo = window.undo,
+                            focusLeft = window.focusLeft}) do
+  local ok, err = pcall(handler)
+  if ok then
+    print("  ok   no focused window is handled: " .. name)
+  else
+    failures = failures + 1
+    print("  FAIL no focused window threw in " .. name .. ": " .. tostring(err))
+  end
 end
 
 print()
