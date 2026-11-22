@@ -19,8 +19,19 @@ vim.opt.clipboard = "unnamedplus"
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
--- Theme
-vim.cmd.colorscheme("catppuccin-mocha")
+-- Theme: built-in catppuccin picks Mocha or Latte from 'background', which
+-- Neovim detects from the terminal. Clear the Normal background so the
+-- terminal's own background (Espresso or E-Ink white) shows through.
+vim.api.nvim_create_autocmd("ColorScheme", {
+  pattern = "catppuccin",
+  callback = function()
+    local normal = vim.api.nvim_get_hl(0, { name = "Normal" })
+    normal.bg = nil
+    normal.ctermbg = nil
+    vim.api.nvim_set_hl(0, "Normal", normal)
+  end,
+})
+vim.cmd.colorscheme("catppuccin")
 
 -- Set 2-space indentation for specific languages
 vim.api.nvim_create_autocmd("FileType", {

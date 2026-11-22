@@ -1,8 +1,8 @@
 # General
 command_timeout = 2000
-# Theme: "catppuccin_mocha" (dark) or "e_ink" (light). Match wezterm.lua.
+# Theme: the `theme` command sets the palette ("catppuccin_mocha" or
+# "e_ink") in a generated copy of this file, so leave this as the default.
 palette = "catppuccin_mocha"
-# palette = "e_ink"
 
 format = """
 $directory\
@@ -37,6 +37,8 @@ style = "bold blue"
 disabled = true
 
 # One git status per prompt: ✖ when dirty, ● when clean. The colour comes
+# from the command, since a module's style can't depend on its output. Plain
+# ANSI red and green, so it follows the terminal's colour scheme.
 [custom.git_state]
 command = 'if [ -n "$(git status --porcelain 2>/dev/null)" ]; then printf "\033[1;31m✖\033[0m"; else printf "\033[1;32m●\033[0m"; fi'
 when = true

@@ -7,6 +7,7 @@ typeset -U path  # ensures unique entries only (removes duplicates)
 path=(
     $HOME/bin
     $HOME/.local/bin
+    $HOME/.config/bin
     $path
 )
 export PATH
@@ -58,7 +59,10 @@ autoload -Uz compinit && compinit
 zinit cdreplay -q
 
 # Initialize tools
-export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
+# Starship runs from a copy of starship.toml with the palette set by the
+# `theme` command (see bin/theme). Falls back to the real file if that fails.
+export STARSHIP_CONFIG="${XDG_CACHE_HOME:-$HOME/.cache}/starship/starship.toml"
+command -v theme &>/dev/null && theme sync || export STARSHIP_CONFIG="$HOME/.config/starship/starship.toml"
 command -v starship &>/dev/null && eval "$(starship init zsh)"
 command -v fnm &>/dev/null && eval "$(fnm env --use-on-cd --shell zsh --version-file-strategy=recursive)"
 command -v fzf &>/dev/null && eval "$(fzf --zsh)"

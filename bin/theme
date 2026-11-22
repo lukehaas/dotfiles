@@ -1,0 +1,78 @@
+#!/bin/sh
+# Switch the terminal colour theme between "dark" (Catppuccin Mocha) and
+# "eink" (for the Bigme B13).
+#
+#   theme            print the current theme
+#   theme dark|eink  switch to it
+#   theme sync       make sure the state file and Starship's config exist
+#
+# The choice lives in a state file that each tool reads:
+#
+#   WezTerm   watches the file and reloads itself
+#   Neovim    follows WezTerm's background colour at startup
+#   tmux      reads it when tmux.conf loads, so it is reloaded here
+#   Starship  can only pick a palette from inside its own config, so it runs
+#             from a generated copy of starship.toml with the palette set.
+#             `starship config` can't edit the real file: it replaces the stow
+#             symlink with a plain file.
+#
+# Hammerspoon runs this when a WezTerm window changes screen, so it must work
+# with a minimal PATH and do nothing when the theme is already right.
+
+set -eu
+
+PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+state="${XDG_STATE_HOME:-$HOME/.local/state}/theme"
+starship_src="$HOME/.config/starship/starship.toml"
+# Keep in sync with STARSHIP_CONFIG in .zshrc.
+starship_out="${XDG_CACHE_HOME:-$HOME/.cache}/starship/starship.toml"
+
+current() {
+  cat "$state" 2>/dev/null || echo dark
+}
+
+write_state() {
+  mkdir -p "$(dirname "$state")"
+  printf '%s\n' "$1" > "$state"
+}
+
+# Built beside the target and moved into place, so a prompt drawn mid-switch
+# never reads a half-written file.
+build_starship() {
+  case "$1" in
+    eink) palette=e_ink ;;
+    *) palette=catppuccin_mocha ;;
+  esac
+  mkdir -p "$(dirname "$starship_out")"
+  tmp="$(mktemp "$starship_out.XXXXXX")"
+  cp "$starship_src" "$tmp"
+  STARSHIP_CONFIG="$tmp" starship config palette "$palette"
+  mv "$tmp" "$starship_out"
+}
+
+case "${1:-}" in
+  "")
+    current
+    ;;
+  sync)
+    # The state file must exist for WezTerm to watch it.
+    [ -f "$state" ] || write_state dark
+    # Rebuild when starship.toml has been edited since the last build.
+    if [ ! -f "$starship_out" ] || [ "$starship_src" -nt "$starship_out" ]; then
+      build_starship "$(current)"
+    fi
+    ;;
+  dark | eink)
+    [ "$1" = "$(current)" ] && exit 0
+    write_state "$1"
+    build_starship "$1"
+    if tmux info >/dev/null 2>&1; then
+      tmux source-file "$HOME/.config/tmux/tmux.conf"
+    fi
+    ;;
+  *)
+    echo "usage: theme [dark | eink | sync]" >&2
+    exit 2
+    ;;
+esac

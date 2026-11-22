@@ -2,7 +2,17 @@ local wezterm = require("wezterm")
 
 local config = wezterm.config_builder()
 
-local theme = "dark" -- Options: "dark" or "light"
+-- Theme: "dark" or "eink", set by the `theme` command. Watching the file
+-- makes WezTerm reload when it changes. `theme sync` creates it at shell
+-- start, so it is only missing before the first shell ever runs.
+local theme_file = (os.getenv("XDG_STATE_HOME") or (wezterm.home_dir .. "/.local/state")) .. "/theme"
+local theme = "dark"
+local f = io.open(theme_file, "r")
+if f then
+  theme = f:read("l") or "dark"
+  f:close()
+  wezterm.add_to_config_reload_watch_list(theme_file)
+end
 
 local mocha = wezterm.color.get_builtin_schemes()["Catppuccin Mocha"]
 mocha.background = "#11111b"
@@ -25,9 +35,8 @@ config.color_schemes["E-Ink"] = {
 
 config.adjust_window_size_when_changing_font_size = false
 config.enable_tab_bar = false
-config.font_size = 15.0
 
-if theme == "light" then
+if theme == "eink" then
   config.color_scheme = "E-Ink"
   config.bold_brightens_ansi_colors = "No"
   config.cursor_blink_rate = 0
