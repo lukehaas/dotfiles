@@ -28,9 +28,9 @@ config.color_schemes["E-Ink"] = {
   cursor_fg = "#ffffff",
   cursor_border = "#000000",
   selection_fg = "#000000",
-  selection_bg = "#b8b8b8",
-  ansi = { "#e8e8e8", "#d70000", "#008f00", "#b07000", "#0050e0", "#b000b0", "#008ca0", "#000000" },
-  brights = { "#666666", "#ff2020", "#00a800", "#d75f00", "#2070ff", "#d000d0", "#00a8c0", "#333333" },
+  selection_bg = "#bbbbbb",
+  ansi = { "#dddddd", "#d70000", "#008f00", "#b07000", "#0050e0", "#b000b0", "#008ca0", "#000000" },
+  brights = { "#666666", "#b70000", "#007a00", "#965f00", "#0044be", "#960096", "#007788", "#333333" },
 }
 
 config.adjust_window_size_when_changing_font_size = false
@@ -42,6 +42,7 @@ if theme == "eink" then
   config.cursor_blink_rate = 0
   config.animation_fps = 1
   config.font_size = 17.0
+  -- config.freetype_load_target = "Mono"
 else
   config.color_scheme = "Catppuccin Espresso"
   config.font_size = 15.0
